@@ -1,0 +1,74 @@
+
+services:
+    # Service for the Laravel application (PHP)
+    app:
+        build:
+            context: ./
+            dockerfile: Dockerfile
+        container_name: blog-api
+        restart: unless-stopped
+        working_dir: /var/www
+        volumes:
+            - ./:/var/www
+        networks:
+            - app-network
+
+    # Service for the Nginx web server
+    web:
+        image: nginx:alpine
+        container_name: webserver
+        restart: unless-stopped
+        ports:
+            - 80:80
+        volumes:
+            - ./:/var/www
+            - ./nginx.conf:/etc/nginx/conf.d/default.conf
+        networks:
+            - app-network
+
+    # Service for the MySQL database
+    db:
+        image: mysql:8.0
+        container_name: database
+        restart: unless-stopped
+        environment:
+            # MYSQL_DATABASE: blog_news_db
+            # MYSQL_ROOT_PASSWORD:
+            # MYSQL_PASSWORD: password
+            # MYSQL_USER: blog_news_user
+            SERVICE_TAGS: dev
+            SERVICE_NAME: mysql
+        volumes:
+            - dbdata:/var/lib/mysql
+        networks:
+            - app-network
+
+    # Service for Redis, a popular caching and queue service
+    redis:
+        image: redis:alpine
+        container_name: redis_cache
+        restart: unless-stopped
+        networks:
+            - app-network
+    phpmyadmin:
+        image: phpmyadmin/phpmyadmin
+        container_name: phpmyadmin_service
+        restart: always
+        ports:
+            - 8080:80
+        environment:
+            PMA_HOST: db
+            MYSQL_ROOT_PASSWORD: password
+        networks:
+            - app-network
+
+# Define a Docker network for the containers to communicate with each other
+networks:
+    app-network:
+        driver: bridge
+
+# Define a volume to persist the database data
+volumes:
+    dbdata:
+        driver: local
+
