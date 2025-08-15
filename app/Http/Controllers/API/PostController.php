@@ -399,20 +399,6 @@ class PostController extends Controller
         return response()->json(new PostResource($post));
     }
 
-    public function getPostBySlug($slug)
-    {
-        $post = Post::with(['tags', 'category', 'user'])
-            ->where('slug', $slug)
-            ->where('is_active', 1)
-            ->first();
-
-        if (!$post) {
-            return response()->json(['message' => 'Post not found'], 404);
-        }
-
-        return response()->json(new PostResource($post));
-    }
-
     public function getPostsByCategorySlug($slug)
     {
         $category = Category::where('slug', $slug)->first();
@@ -426,7 +412,7 @@ class PostController extends Controller
             ->where('is_active', 1)
             ->get();
 
-        return response()->json(PostResource::collection($posts));
+        return response()->json(['posts'=>PostResource::collection($posts), 'category' => $category->name_kh]    );
     }
 
     public function getPhpInfo()

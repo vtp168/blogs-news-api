@@ -12,6 +12,8 @@ services:
             - ./:/var/www
         networks:
             - app-network
+        ports:
+          - 8000:8000
 
     # Service for the Nginx web server
     web:
